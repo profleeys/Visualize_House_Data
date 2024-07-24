@@ -12,13 +12,26 @@ uploaded_file = st.file_uploader("請上傳CSV文件", type="csv")
 
 if uploaded_file is not None:
     # 加載清理後的CSV數據
-    data = pd.read_csv(uploaded_file, encoding='utf-8-sig')
+    try:
+        data = pd.read_csv(uploaded_file, encoding='utf-8-sig')
+        st.write("CSV文件已成功加載")
+    except Exception as e:
+        st.error(f"CSV文件加載失敗: {e}")
 
-    # 創建簡化的路段名稱列
-    data['簡化路段'] = data['地段位置或門牌'].str.extract(r'^(虎尾鎮.*?路|虎尾鎮.*?街)')[0].fillna(data['地段位置或門牌'])
+    try:
+        # 創建簡化的路段名稱列
+        data['簡化路段'] = data['地段位置或門牌'].str.extract(r'^(虎尾鎮.*?路|虎尾鎮.*?街)')[0].fillna(data['地段位置或門牌'])
+        st.write("簡化路段名稱列已成功創建")
+    except KeyError as e:
+        st.error(f"創建簡化路段名稱列失敗，可能是因為缺少列 '地段位置或門牌': {e}")
 
-    # 提取簡化的唯一路段名稱用於下拉選單選項
-    unique_simplified_areas = data['簡化路段'].dropna().unique()
+    try:
+        # 提取簡化的唯一路段名稱用於下拉選單選項
+        unique_simplified_areas = data['簡化路段'].dropna().unique()
+        st.write("簡化的唯一路段名稱已成功提取")
+        st.write(unique_simplified_areas)
+    except KeyError as e:
+        st.error(f"提取簡化的唯一路段名稱失敗，可能是因為缺少列 '簡化路段': {e}")
 
     selected_simplified_area = st.selectbox('選擇簡化路段', unique_simplified_areas)
 
